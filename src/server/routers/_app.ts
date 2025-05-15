@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
+import * as yup from 'yup';
 import { prisma } from '../db';
 
 const t = initTRPC.create();
@@ -7,10 +7,12 @@ const t = initTRPC.create();
 export const appRouter = t.router({
   // Create
   criarTask: t.procedure
-    .input(z.object({
-      titulo: z.string(),
-      descricao: z.string().optional(),
-    }))
+    .input(
+      yup.object({
+        titulo: yup.string().required('Title is required'),
+        descricao: yup.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       return await prisma.task.create({
         data: {
@@ -29,7 +31,11 @@ export const appRouter = t.router({
 
   // Read by ID
   obterTask: t.procedure
-    .input(z.object({ id: z.number() }))
+    .input(
+      yup.object({
+        id: yup.number().required('ID is required'),
+      })
+    )
     .query(async ({ input }) => {
       return await prisma.task.findUnique({
         where: { id: input.id },
@@ -38,11 +44,13 @@ export const appRouter = t.router({
 
   // Update
   atualizarTask: t.procedure
-    .input(z.object({
-      id: z.number(),
-      titulo: z.string(),
-      descricao: z.string().optional(),
-    }))
+    .input(
+      yup.object({
+        id: yup.number().required('ID is required'),
+        titulo: yup.string().required('Title is required'),
+        descricao: yup.string().optional(),
+      })
+    )
     .mutation(async ({ input }) => {
       return await prisma.task.update({
         where: { id: input.id },
@@ -55,7 +63,11 @@ export const appRouter = t.router({
 
   // Delete
   deletarTask: t.procedure
-    .input(z.object({ id: z.number() }))
+    .input(
+      yup.object({
+        id: yup.number().required('ID is required'),
+      })
+    )
     .mutation(async ({ input }) => {
       return await prisma.task.delete({
         where: { id: input.id },
